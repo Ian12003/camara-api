@@ -105,7 +105,7 @@ const LocationVerification = () => {
         </button>
 
         {error && (
-          <pre className="mt-4 bg-red-100 text-red-600 p-3 rounded text-sm">
+          <pre className="mt-4 bg-red-100 text-red-600 p-3 rounded text-sm overflow-auto">
             {JSON.stringify(error, null, 2)}
           </pre>
         )}

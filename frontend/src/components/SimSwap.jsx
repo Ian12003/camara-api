@@ -109,7 +109,7 @@ const SimSwap = () => {
         </div>
 
         {error && (
-          <pre className="mt-4 bg-red-100 text-red-600 p-3 rounded text-sm">
+          <pre className="mt-4 bg-red-100 text-red-600 overflow-auto p-3 rounded text-sm">
             {JSON.stringify(error, null, 2)}
           </pre>
         )}
