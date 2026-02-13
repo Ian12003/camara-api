@@ -5,8 +5,8 @@ const Sidebar = () => {
     <div className="flex h-screen font-sans">
       
       {/* Sidebar */}
-      <aside className="w-[260px] bg-slate-900 text-white px-5 py-6">
-        <h2 className="text-xl mb-1">Network APIs</h2>
+      <aside className="w-260px bg-slate-900 text-white px-5 py-6">
+        <h2 className="text-xl mb-1">Theta-X</h2>
         <p className="text-sm text-slate-400 mb-7">
           Telecom verification tools
         </p>
@@ -25,11 +25,11 @@ const Sidebar = () => {
             <span>Location Verification</span>
           </div>
 
-          <div className="flex items-center gap-2 px-3 py-3 rounded-lg cursor-pointer bg-slate-800 text-white">
+          <div className="flex items-center gap-2 px-3 py-3 rounded-lg cursor-pointer text-gray-200 hover:bg-slate-800 transition">
             <span>SIM Swap</span>
           </div>
 
-          <div className="flex items-center px-3 py-3 gap-2 rounded-lg cursor-pointer text-white bg-">
+          <div className="flex items-center gap-2 px-3 py-3 rounded-lg cursor-pointer text-gray-200 hover:bg-slate-800 transition">
             <span>QOD</span>
           </div>
 
