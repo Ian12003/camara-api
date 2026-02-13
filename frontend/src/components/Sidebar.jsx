@@ -3,36 +3,52 @@ import React from "react";
 const Sidebar = ({ setActivePage }) => {
   return (
     <aside className="w-64 bg-slate-900 text-white px-5 py-6">
-      <h2 className="text-xl mb-1">Theta-X</h2>
-      <p className="text-sm text-slate-400 mb-7">Telecom verification tools</p>
 
-      <div className="text-xs uppercase text-slate-500 mb-3">Tools</div>
+      <h2 className="text-xl mb-1">Theta-X</h2>
+
+      <div className="text-xs uppercase text-slate-500 mb-3">
+       Monitoring Dashboard
+      </div>
 
       <nav className="flex flex-col gap-2">
+
         <div
-          onClick={() => setActivePage("device")}
+          onClick={() => setActivePage("dashboard")}
           className="px-3 py-3 rounded-lg cursor-pointer hover:bg-slate-800"
         >
-          Device Identification
+          Overview
         </div>
 
         <div
           onClick={() => setActivePage("location")}
           className="px-3 py-3 rounded-lg cursor-pointer hover:bg-slate-800"
         >
-          Location Verification
+          Current Location
         </div>
 
         <div
-          onClick={() => setActivePage("sim")}
+          onClick={() => setActivePage("status")}
           className="px-3 py-3 rounded-lg cursor-pointer hover:bg-slate-800"
         >
-          SIM Swap
+          Current Status
         </div>
-        <div className="flex items-center gap-2 px-3 py-3 rounded-lg cursor-pointer text-gray-200 hover:bg-slate-800 transition">
-          <span>QOD</span>
+
+        <div
+          onClick={() => setActivePage("battery")}
+          className="px-3 py-3 rounded-lg cursor-pointer hover:bg-slate-800"
+        >
+          Battery Information
         </div>
+
+        <div
+          onClick={() => setActivePage("network")}
+          className="px-3 py-3 rounded-lg cursor-pointer hover:bg-slate-800"
+        >
+          Network Bandwidth
+        </div>
+
       </nav>
+
     </aside>
   );
 };
