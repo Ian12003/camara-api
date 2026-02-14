@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import axios from "axios";
 import {
   BarChart,
@@ -8,7 +8,7 @@ import {
   Tooltip,
   ResponsiveContainer,
   AreaChart,
-  Area
+  Area,
 } from "recharts";
 
 const API_ROOT = "http://localhost:9091/location-verification/v3";
@@ -19,7 +19,7 @@ const mismatchData = [
   { day: "Feb 7", value: 9 },
   { day: "Feb 8", value: 6 },
   { day: "Feb 9", value: 13 },
-  { day: "Feb 10", value: 12 }
+  { day: "Feb 10", value: 12 },
 ];
 
 const accuracyData = [
@@ -27,13 +27,22 @@ const accuracyData = [
   { name: "100m", value: 3500 },
   { name: "500m", value: 1200 },
   { name: "1000m", value: 500 },
-  { name: "10000m", value: 100 }
+  { name: "10000m", value: 100 },
 ];
 
 const CurrentLocation = () => {
   const [verificationResult, setVerificationResult] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+
+  useEffect(() => {
+    if (error) {
+      const timer = setTimeout(() => {
+        setError(null);
+      }, 4000);
+      return () => clearTimeout(timer);
+    }
+  }, [error]);
 
   const verifyLocation = async () => {
     setLoading(true);
@@ -44,43 +53,42 @@ const CurrentLocation = () => {
         `${API_ROOT}/verify`,
         {
           device: {
-            phoneNumber: "+123456789"
+            phoneNumber: "+123456789",
           },
           area: {
             areaType: "CIRCLE",
             center: {
               latitude: 50.735851,
-              longitude: 7.10066
+              longitude: 7.10066,
             },
-            radius: 50000
+            radius: 50000,
           },
-          maxAge: 120
+          maxAge: 120,
         },
         {
           headers: {
             "Content-Type": "application/json",
-            "x-correlator": "b4333c46-49c0-4f62-80d7-f0ef930f1c46"
+            "x-correlator": "b4333c46-49c0-4f62-80d7-f0ef930f1c46",
             // If needed:
             // Authorization: `Bearer ${yourToken}`
-          }
-        }
+          },
+        },
       );
 
       setVerificationResult(response.data);
-    } catch (err) {
-      setError(
-        err.response?.data?.message ||
-        err.response?.data?.code ||
-        err.message
-      );
-    }
-
+    }  catch (err) {
+    setError(
+      err.response?.data?.message ||
+      err.response?.data?.code ||
+      err.message
+    );
+  } finally {
     setLoading(false);
+  }
   };
 
   return (
     <div className="min-h-screen bg-gray-100 p-6">
-
       {/* Header */}
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-2xl font-semibold text-gray-800">
@@ -105,12 +113,10 @@ const CurrentLocation = () => {
         <div className="bg-white rounded-xl shadow p-6 mb-6">
           <p className="text-lg font-semibold mb-2">Verification Result</p>
           <p>
-            <strong>Status:</strong>{" "}
-            {verificationResult.verificationResult}
+            <strong>Status:</strong> {verificationResult.verificationResult}
           </p>
           <p>
-            <strong>Match Rate:</strong>{" "}
-            {verificationResult.matchRate}%
+            <strong>Match Rate:</strong> {verificationResult.matchRate}%
           </p>
           <p>
             <strong>Last Location Time:</strong>{" "}
@@ -120,7 +126,7 @@ const CurrentLocation = () => {
       )}
 
       {error && (
-        <div className="bg-red-100 text-red-700 p-4 rounded-lg mb-6">
+        <div className="bg-red-100 text-red-700 p-4 rounded-lg mb-6 transition-opacity duration-500">
           Error: {error}
         </div>
       )}
@@ -145,7 +151,6 @@ const CurrentLocation = () => {
 
       {/* Charts Section */}
       <div className="grid md:grid-cols-2 gap-6">
-
         <div className="bg-white rounded-xl shadow p-6">
           <h4 className="text-gray-700 font-medium mb-4">
             GPS vs Network mismatch
@@ -180,9 +185,7 @@ const CurrentLocation = () => {
             </BarChart>
           </ResponsiveContainer>
         </div>
-
       </div>
-
     </div>
   );
 };
