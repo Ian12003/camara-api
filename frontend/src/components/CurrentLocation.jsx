@@ -13,6 +13,12 @@ import {
 
 const API_ROOT = "http://localhost:9091/location-verification/v3";
 
+const locations=[
+  { lat: 26.1445, lon: 91.7362 },
+  { lat: 26.1500, lon: 91.7400 },
+  { lat: 26.1300, lon: 91.7200 },
+]
+
 const mismatchData = [
   { day: "Feb 5", value: 10 },
   { day: "Feb 6", value: 14 },
@@ -58,8 +64,8 @@ const CurrentLocation = () => {
           area: {
             areaType: "CIRCLE",
             center: {
-              latitude: 50.735851,
-              longitude: 7.10066,
+              latitude: locations[0].lat,
+              longitude: locations[0].lon,
             },
             radius: 50000,
           },
@@ -102,9 +108,15 @@ const CurrentLocation = () => {
           {loading ? "Verifying..." : "Verify"}
         </button>
       </div>
+      
       <div className="bg-white rounded-xl shadow p-4 mb-6">
-        <div className="h-80 bg-gray-200 rounded-lg flex items-center justify-center text-gray-500 font-medium">
-          Google Map Here
+        <div className="h-80 bg-gray-200 rounded-lg  text-gray-500 font-medium overflow-hidden">
+          <iframe
+            title="map"
+            width="100%"
+            height="100%"
+            src={`https://maps.google.com/maps?q=${locations[0].lat},${locations[0].lon}&z=13&output=embed`}
+          />
         </div>
       </div>
 
