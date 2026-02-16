@@ -118,18 +118,23 @@ const CurrentLocation = () => {
           </MapContainer>
         )}
       </div>
+<div className="grid md:grid-cols-3 gap-6 mb-6">
+        <div className="bg-white rounded-xl shadow p-6">
+          <p className="text-gray-500 text-sm">Total Location Check</p>
+          <h3 className="text-2xl font-bold mt-2">5000</h3>
+        </div>
 
-      <div className="grid md:grid-cols-3 gap-6 mb-6">
-        <StatCard title="Total Devices" value={devices.length} />
-        <StatCard
-          title="Available"
-          value={devices.filter((d) => d.status === "AVAILABLE").length}
-        />
-        <StatCard
-          title="Offline"
-          value={devices.filter((d) => d.status === "OFFLINE").length}
-        />
+        <div className="bg-white rounded-xl shadow p-6">
+          <p className="text-gray-500 text-sm">Match Rate</p>
+          <h3 className="text-2xl font-bold text-green-500 mt-2">92%</h3>
+        </div>
+
+        <div className="bg-white rounded-xl shadow p-6">
+          <p className="text-gray-500 text-sm">Mismatch Rate</p>
+          <h3 className="text-2xl font-bold text-red-500 mt-2">8%</h3>
+        </div>
       </div>
+    
 
       <div className="bg-white rounded-xl shadow overflow-hidden mb-6">
         <table className="w-full text-sm">
