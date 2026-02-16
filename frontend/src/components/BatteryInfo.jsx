@@ -4,7 +4,7 @@ const API_ROOT = "YOUR_API_ROOT/battery";
 
 const MOCK_DEVICES = [
   {
-    deviceId: "device-001",
+    deviceId: "DEVICE-001",
     msisdn: "+491701234567",
     deviceType: "CAR",
     active: true,
@@ -13,7 +13,7 @@ const MOCK_DEVICES = [
     lastBatteryUpdate: "2026-02-13T10:28:00Z",
   },
   {
-    deviceId: "device-002",
+    deviceId: "DEVICE-002",
     msisdn: "+491709876543",
     deviceType: "SCOOTER",
     active: true,
@@ -22,15 +22,16 @@ const MOCK_DEVICES = [
     lastBatteryUpdate: "2026-02-13T10:20:00Z",
   },
   {
-    deviceId: "device-003",
+    deviceId: "DEVICE-003",
     msisdn: "+491700001111",
     deviceType: "SENSOR",
     active: true,
     batteryLevel: 19,
     chargingState: "CHARGING",
     lastBatteryUpdate: "2026-02-13T10:12:00Z",
-  },
+  }
 ];
+
 
 const BatteryInfo = () => {
   const [devices, setDevices] = useState([]);

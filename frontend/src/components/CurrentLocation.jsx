@@ -26,7 +26,7 @@ const MOCK_DEVICES = [
     msisdn: "+491701234567",
     lat: 26.1445,
     lon: 91.7362,
-    status: "ACTIVE",
+    status: "USE",
     lastUpdate: "2026-02-13T10:20:00Z"
   },
   {
@@ -34,7 +34,7 @@ const MOCK_DEVICES = [
     msisdn: "+491709876543",
     lat: 26.1500,
     lon: 91.7400,
-    status: "LOW_BATTERY",
+    status: "AVAILABLE",
     lastUpdate: "2026-02-13T10:18:00Z"
   },
   {

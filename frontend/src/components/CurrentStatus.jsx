@@ -6,32 +6,26 @@ const MOCK_STATUS = [
   {
     deviceId: "DEVICE-001",
     status: "USE",
-    battery: 82,
-    location: "Berlin",
+    battery: 42,
+    location: "Guwahati",
     lastUpdate: "2026-02-13T10:20:00Z"
   },
   {
     deviceId: "DEVICE-002",
     status: "AVAILABLE",
-    battery: 55,
-    location: "Munich",
+    battery: 100,
+    location: "Guwahati",
     lastUpdate: "2026-02-13T09:45:00Z"
   },
   {
     deviceId: "DEVICE-003",
-    status: "CHARGING",
-    battery: 34,
-    location: "Hamburg",
-    lastUpdate: "2026-02-13T09:10:00Z"
-  },
-  {
-    deviceId: "DEVICE-004",
     status: "OFFLINE",
-    battery: 0,
-    location: "Unknown",
-    lastUpdate: "2026-02-13T08:30:00Z"
+    battery: 19,
+    location: "Guwahati",
+    lastUpdate: "2026-02-13T09:10:00Z"
   }
 ];
+
 
 const statuses = ["USE", "AVAILABLE", "CHARGING", "OFFLINE", "MAINTENANCE"];
 

@@ -29,6 +29,15 @@ const MOCK_DEVICE_INFO = {
     latency: 120,
     signal: 55,
     lastUpdate: "2026-02-13T10:30:00Z"
+  },
+  "DEVICE-003": {
+    deviceId: "DEVICE-003",
+    msisdn: "+491700001111",
+    deviceType: "SENSOR",
+    quality: "POOR",
+    latency: 200,
+    signal: 25,
+    lastUpdate: "2026-02-13T10:30:00Z"
   }
 };
 
@@ -46,6 +55,9 @@ const MOCK_DEVICE_DATA = {
     { time: "10:10", download: 10, upload: 3 },
     { time: "10:15", download: 18, upload: 6 },
     { time: "10:20", download: 14, upload: 4 }
+  ],
+  "DEVICE-003": [
+    { time: "10:00", download: 6, upload: 2 }
   ]
 };
 
