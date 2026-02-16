@@ -26,7 +26,7 @@ const MOCK_DEVICES = [
     msisdn: "+491701234567",
     lat: 26.1445,
     lon: 91.7362,
-    status: "USE",
+    status: "RENT",
     lastUpdate: "2026-02-13T10:20:00Z"
   },
   {
@@ -141,9 +141,9 @@ const CurrentLocation = () => {
                 <td>
                   <span
                     className={`px-2 py-1 rounded text-xs ${
-                      d.status === "ACTIVE"
+                      d.status === "AVAILABLE"
                         ? "bg-green-100 text-green-700"
-                        : d.status === "LOW_BATTERY"
+                        : d.status === "OFFLINE"
                         ? "bg-yellow-100 text-yellow-700"
                         : "bg-red-100 text-red-700"
                     }`}
