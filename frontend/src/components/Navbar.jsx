@@ -9,14 +9,7 @@ const Navbar = () => {
         <h1 className="text-lg font-semibold">Theta-X </h1>
       </div>
 
-      <div className="hidden md:flex items-center bg-slate-500 rounded-lg px-3 py-1 w-80">
-        <Search size={18} className="text-slate-400" />
-        <input
-          type="text"
-          placeholder="Search..."
-          className="bg-transparent outline-none text-sm text-white ml-2 w-full"
-        />
-      </div>
+     
 
       <div className="flex items-center gap-4">
 
