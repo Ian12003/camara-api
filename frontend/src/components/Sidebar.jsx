@@ -14,7 +14,7 @@ const Sidebar = ({ setActivePage, activePage }) => {
   const menuItems = [
     { name: "Overview", key: "dashboard", icon: LayoutDashboard },
     { name: "Current Location", key: "location", icon: MapPin },
-    { name: "Current Status", key: "status", icon: Activity },
+    { name: "Device Status", key: "status", icon: Activity },
     { name: "Battery Information", key: "battery", icon: BatteryCharging },
     { name: "Network Bandwidth", key: "network", icon: Wifi },
   ];
