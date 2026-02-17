@@ -26,41 +26,34 @@ const MOCK_STATUS = [
   }
 ];
 
-
 const statuses = ["USE", "AVAILABLE", "CHARGING", "OFFLINE", "MAINTENANCE"];
 
 const CurrentStatus = () => {
-
   const [devices, setDevices] = useState([]);
 
-  const callApi = async (endpoint) => {
-    console.log("Future API", `${API_ROOT}/${endpoint}`);
-    return new Promise((resolve) => {
-      setTimeout(() => resolve(MOCK_STATUS), 400);
-    });
-  };
-
   useEffect(() => {
-    callApi("current-status").then(setDevices);
+    setTimeout(() => setDevices(MOCK_STATUS), 400);
   }, []);
 
   return (
-    <div>
+    <div className="bg-white border border-slate-200 rounded-xl p-5">
 
-      <h2 className="text-3xl font-bold mb-6">
-        Current Status
-      </h2>
+      {/* Header */}
+      <div className="flex items-center justify-between mb-5">
+        <h2 className="text-xl font-semibold text-slate-900">
+          Current Status
+        </h2>
+      </div>
 
-      <div className="grid grid-cols-5 gap-4">
-
+      {/* Columns */}
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-4">
         {statuses.map((status) => (
           <StatusColumn
             key={status}
             title={status}
-            devices={devices.filter(c => c.status === status)}
+            devices={devices.filter((d) => d.status === status)}
           />
         ))}
-
       </div>
 
     </div>
@@ -68,51 +61,57 @@ const CurrentStatus = () => {
 };
 
 const StatusColumn = ({ title, devices }) => {
-
   const colorMap = {
-    USE: "border-green-500",
-    AVAILABLE: "border-blue-500",
-    CHARGING: "border-yellow-500",
-    OFFLINE: "border-red-500",
-    MAINTENANCE: "border-purple-500"
+    USE: "border-l-emerald-500",
+    AVAILABLE: "border-l-blue-500",
+    CHARGING: "border-l-amber-500",
+    OFFLINE: "border-l-rose-500",
+    MAINTENANCE: "border-l-purple-500"
   };
 
   return (
-    <div className="bg-slate-100 rounded-lg p-3">
+    <div className="bg-white border border-slate-300 rounded-xl p-3">
 
-      <h3 className="font-semibold mb-3 flex justify-between">
-        {title}
-        <span className="text-sm text-gray-500">
+      {/* Column header */}
+      <div className="flex justify-between items-center mb-3">
+        <h3 className="text-xs font-semibold tracking-wide text-slate-800">
+          {title}
+        </h3>
+        <span className="text-xs text-slate-800">
           {devices.length}
         </span>
-      </h3>
+      </div>
 
-      <div className="flex flex-col gap-3">
-
+      {/* Devices */}
+      <div className="space-y-3">
         {devices.map((device) => (
           <div
             key={device.deviceId}
-            className={`bg-white p-4 rounded-lg shadow border-l-4 ${colorMap[title]}`}
+            className={`group border border-slate-400 rounded-lg p-3 hover:border-slate-300 transition ${colorMap[title]} border-l-4`}
           >
-            <h4 className="font-semibold">
-              {device.deviceId}
-            </h4>
 
-            <p className="text-sm mt-1">
-               Battery Level: {device.battery}%
+            {/* Top row */}
+            <div className="flex justify-between items-center">
+              <p className="text-sm font-medium text-slate-800">
+                {device.deviceId}
+              </p>
+
+              <span className="text-xs bg-slate-100 px-2 py-0.5 rounded-md text-slate-700">
+                Battery :{device.battery}%
+              </span>
+            </div>
+
+            {/* Info */}
+            <p className="text-xs text-slate-700 mt-1">
+              Location :{device.location}
             </p>
 
-            <p className="text-sm">
-              Location: {device.location}
-            </p>
-
-            <p className="text-xs text-gray-500 mt-2">
+            <p className="text-[11px] text-slate-700 mt-2">
               {new Date(device.lastUpdate).toLocaleString()}
             </p>
 
           </div>
         ))}
-
       </div>
 
     </div>

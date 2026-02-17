@@ -1,13 +1,10 @@
 import { useEffect, useState } from "react";
 
-const API_ROOT = "YOUR_API_ROOT/battery";
-
 const MOCK_DEVICES = [
   {
     deviceId: "DEVICE-001",
     msisdn: "+491701234567",
     deviceType: "CAR",
-    active: true,
     batteryLevel: 42,
     chargingState: "DISCHARGING",
     lastBatteryUpdate: "2026-02-13T10:28:00Z",
@@ -16,7 +13,6 @@ const MOCK_DEVICES = [
     deviceId: "DEVICE-002",
     msisdn: "+491709876543",
     deviceType: "SCOOTER",
-    active: true,
     batteryLevel: 100,
     chargingState: "FULL",
     lastBatteryUpdate: "2026-02-13T10:20:00Z",
@@ -25,38 +21,24 @@ const MOCK_DEVICES = [
     deviceId: "DEVICE-003",
     msisdn: "+491700001111",
     deviceType: "SENSOR",
-    active: true,
     batteryLevel: 19,
     chargingState: "CHARGING",
     lastBatteryUpdate: "2026-02-13T10:12:00Z",
   }
 ];
 
-
 const BatteryInfo = () => {
   const [devices, setDevices] = useState([]);
   const [loading, setLoading] = useState(false);
-
   const [healthFilter, setHealthFilter] = useState("ALL");
   const [chargeFilter, setChargeFilter] = useState("ALL");
 
-  const callApi = async (endpoint, body = {}) => {
-    console.log("Future API Call", `${API_ROOT}/${endpoint}`, body);
-
-    return new Promise((resolve) => {
-      setTimeout(() => resolve(MOCK_DEVICES), 600);
-    });
-  };
-
   useEffect(() => {
-    const fetchBatteryData = async () => {
-      setLoading(true);
-      const data = await callApi("battery-status", { activeOnly: true });
-      setDevices(data);
+    setLoading(true);
+    setTimeout(() => {
+      setDevices(MOCK_DEVICES);
       setLoading(false);
-    };
-
-    fetchBatteryData();
+    }, 600);
   }, []);
 
   const getHealth = (level) => {
@@ -65,79 +47,90 @@ const BatteryInfo = () => {
     return "CRITICAL";
   };
 
-  const totalDevices = devices.length;
-  const lowBattery = devices.filter((d) => d.batteryLevel < 30).length;
+  const filteredDevices = devices.filter((device) => {
+    const healthMatch =
+      healthFilter === "ALL" ||
+      getHealth(device.batteryLevel) === healthFilter;
+
+    const chargeMatch =
+      chargeFilter === "ALL" ||
+      device.chargingState === chargeFilter;
+
+    return healthMatch && chargeMatch;
+  });
 
   return (
-    <div>
-      <h2 className="text-3xl font-bold mb-8">Device Battery Monitoring</h2>
+    <div className="p-6 space-y-6">
 
-      <div className="grid grid-cols-3 gap-6 mb-8">
-        <div className="bg-red-50 border border-red-200 p-6 rounded-xl">
-          <p className="text-red-700 text-sm">Critical Devices</p>
-          <h3 className="text-3xl font-bold text-red-700 mt-2">
-            {devices.filter((d) => d.batteryLevel < 20).length}
-          </h3>
-          <p className="text-xs text-red-600 mt-1">Battery below 20%</p>
-        </div>
+      {/* HEADER */}
+      <h2 className="text-xl font-semibold text-slate-800">
+        Device Battery Monitoring
+      </h2>
 
-        <div className="bg-yellow-50 border border-yellow-200 p-6 rounded-xl">
-          <p className="text-yellow-700 text-sm">Low & Not Charging</p>
-          <h3 className="text-3xl font-bold text-yellow-700 mt-2">
-            {
-              devices.filter(
-                (d) => d.batteryLevel > 30 && d.chargingState === "DISCHARGING",
-              ).length
-            }
-          </h3>
-          <p className="text-xs text-yellow-600 mt-1">Needs immediate action</p>
-        </div>
+      {/* STATS */}
+      <div className="grid md:grid-cols-3 gap-4">
 
-        <div className="bg-green-50 border border-green-200 p-6 rounded-xl">
-          <p className="text-green-700 text-sm">Healthy Devices</p>
-          <h3 className="text-3xl font-bold text-green-700 mt-2">
-            {devices.filter((d) => d.batteryLevel > 60).length}
-          </h3>
-          <p className="text-xs text-green-600 mt-1">Battery above 60%</p>
-        </div>
+        <StatCard
+          title="Critical Devices"
+          value={devices.filter((d) => d.batteryLevel < 20).length}
+          color="text-rose-600"
+          note="Battery below 20%"
+        />
+
+        <StatCard
+          title="Low & Not Charging"
+          value={
+            devices.filter(
+              (d) =>
+                d.batteryLevel <= 30 &&
+                d.chargingState === "DISCHARGING"
+            ).length
+          }
+          color="text-amber-600"
+          note="Needs attention"
+        />
+
+        <StatCard
+          title="Healthy Devices"
+          value={devices.filter((d) => d.batteryLevel > 60).length}
+          color="text-emerald-600"
+          note="Battery above 60%"
+        />
+
       </div>
 
-      <div className="flex justify-end gap-4 mb-4">
-        <select
+      {/* FILTERS */}
+      <div className="flex flex-wrap gap-3 justify-end">
+
+        <Select
           value={healthFilter}
-          onChange={(e) => setHealthFilter(e.target.value)}
-          className="p-2 border rounded"
-        >
-          <option value="ALL">All Health</option>
-          <option value="GOOD">GOOD</option>
-          <option value="LOW">LOW</option>
-          <option value="CRITICAL">CRITICAL</option>
-        </select>
+          onChange={setHealthFilter}
+          options={["ALL", "GOOD", "LOW", "CRITICAL"]}
+        />
 
-        <select
+        <Select
           value={chargeFilter}
-          onChange={(e) => setChargeFilter(e.target.value)}
-          className="p-2 border rounded"
-        >
-          <option value="ALL">All Charging States</option>
-          <option value="CHARGING">CHARGING</option>
-          <option value="DISCHARGING">DISCHARGING</option>
-          <option value="FULL">FULL</option>
-        </select>
+          onChange={setChargeFilter}
+          options={["ALL", "CHARGING", "DISCHARGING", "FULL"]}
+        />
+
       </div>
 
-      <div className="bg-white rounded-xl shadow overflow-hidden">
-        <div className="p-5 border-b">
-          <h3 className="font-semibold text-lg">Device Battery Details</h3>
+      {/* TABLE */}
+      <div className="bg-white border border-slate-200 rounded-xl overflow-hidden">
+
+        <div className="px-4 py-3 border-b border-slate-200 text-sm font-medium text-slate-700">
+          Device Battery Details
         </div>
 
         {loading ? (
-          <p className="p-6">Loading battery data...</p>
+          <p className="p-6 text-sm text-slate-500">Loading battery data...</p>
         ) : (
           <table className="w-full text-sm">
-            <thead className="bg-slate-100 text-left">
+
+            <thead className="bg-slate-50 text-slate-500 text-xs">
               <tr>
-                <th className="p-4">Device ID</th>
+                <th className="p-3 text-left">Device</th>
                 <th>MSISDN</th>
                 <th>Type</th>
                 <th>Battery</th>
@@ -148,79 +141,110 @@ const BatteryInfo = () => {
             </thead>
 
             <tbody>
-              {devices
-                .filter((device) => {
-                  const healthMatch =
-                    healthFilter === "ALL" ||
-                    getHealth(device.batteryLevel) === healthFilter;
+              {filteredDevices.map((device) => (
+                <tr
+                  key={device.deviceId}
+                  className="border-t border-slate-100 hover:bg-slate-50 transition"
+                >
+                  <td className="p-3 font-medium text-slate-800">
+                    {device.deviceId}
+                  </td>
 
-                  const chargeMatch =
-                    chargeFilter === "ALL" ||
-                    device.chargingState === chargeFilter;
+                  <td className="text-slate-600">{device.msisdn}</td>
 
-                  return healthMatch && chargeMatch;
-                })
-                .map((device, index) => (
-                  <tr key={index} className="border-t hover:bg-slate-50">
-                    <td className="p-4 font-semibold">{device.deviceId}</td>
+                  <td>
+                    <span className="px-2 py-1 text-xs rounded-md bg-slate-100 text-slate-600">
+                      {device.deviceType}
+                    </span>
+                  </td>
 
-                    <td>{device.msisdn}</td>
+                  <td className="w-[180px]">
+                    <BatteryBar level={device.batteryLevel} />
+                  </td>
 
-                    <td>
-                      <span className="px-2 py-1 rounded bg-slate-200">
-                        {device.deviceType}
-                      </span>
-                    </td>
+                  <td>
+                    <HealthBadge health={getHealth(device.batteryLevel)} />
+                  </td>
 
-                    <td>
-                      <div className="flex items-center gap-3">
-                        <div className="w-28 bg-gray-200 rounded-full h-2">
-                          <div
-                            className={`h-2 rounded-full ${
-                              device.batteryLevel > 60
-                                ? "bg-green-500"
-                                : device.batteryLevel > 30
-                                  ? "bg-yellow-500"
-                                  : "bg-red-500"
-                            }`}
-                            style={{ width: `${device.batteryLevel}%` }}
-                          ></div>
-                        </div>
-                        {device.batteryLevel}%
-                      </div>
-                    </td>
+                  <td>
+                    <ChargingBadge state={device.chargingState} />
+                  </td>
 
-                    <td>
-                      <span
-                        className={`px-2 py-1 rounded text-xs font-semibold ${
-                          getHealth(device.batteryLevel) === "GOOD"
-                            ? "bg-green-100 text-green-700"
-                            : getHealth(device.batteryLevel) === "LOW"
-                              ? "bg-yellow-100 text-yellow-700"
-                              : "bg-red-100 text-red-700"
-                        }`}
-                      >
-                        {getHealth(device.batteryLevel)}
-                      </span>
-                    </td>
-
-                    <td>
-                      <span className="px-2 py-1 rounded bg-blue-100 text-blue-700 text-xs">
-                        {device.chargingState}
-                      </span>
-                    </td>
-
-                    <td>
-                      {new Date(device.lastBatteryUpdate).toLocaleString()}
-                    </td>
-                  </tr>
-                ))}
+                  <td className="text-xs text-slate-500">
+                    {new Date(device.lastBatteryUpdate).toLocaleString()}
+                  </td>
+                </tr>
+              ))}
             </tbody>
+
           </table>
         )}
       </div>
     </div>
   );
 };
+
+/* ---------------- COMPONENTS ---------------- */
+
+const StatCard = ({ title, value, color, note }) => (
+  <div className="bg-white border border-slate-200 rounded-xl p-4">
+    <p className="text-xs text-slate-500">{title}</p>
+    <h3 className={`text-xl font-semibold mt-1 ${color}`}>{value}</h3>
+    <p className="text-xs text-slate-400 mt-1">{note}</p>
+  </div>
+);
+
+const Select = ({ value, onChange, options }) => (
+  <select
+    value={value}
+    onChange={(e) => onChange(e.target.value)}
+    className="border border-slate-200 bg-white rounded-lg px-3 py-2 text-sm text-slate-600"
+  >
+    {options.map((o) => (
+      <option key={o}>{o}</option>
+    ))}
+  </select>
+);
+
+const BatteryBar = ({ level }) => {
+  const color =
+    level > 60
+      ? "bg-emerald-500"
+      : level > 30
+      ? "bg-amber-500"
+      : "bg-rose-500";
+
+  return (
+    <div className="flex items-center gap-3">
+      <div className="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
+        <div
+          className={`h-2 ${color} rounded-full`}
+          style={{ width: `${level}%` }}
+        />
+      </div>
+      <span className="text-xs text-slate-600">{level}%</span>
+    </div>
+  );
+};
+
+const HealthBadge = ({ health }) => {
+  const map = {
+    GOOD: "bg-emerald-50 text-emerald-600",
+    LOW: "bg-amber-50 text-amber-600",
+    CRITICAL: "bg-rose-50 text-rose-600",
+  };
+
+  return (
+    <span className={`px-2 py-1 rounded-md text-xs font-medium ${map[health]}`}>
+      {health}
+    </span>
+  );
+};
+
+const ChargingBadge = ({ state }) => (
+  <span className="px-2 py-1 rounded-md text-xs font-medium bg-blue-50 text-blue-600">
+    {state}
+  </span>
+);
 
 export default BatteryInfo;

@@ -21,8 +21,6 @@ L.Icon.Default.mergeOptions({
   shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
 });
 
-const API_ROOT = "YOUR_API_ROOT/location";
-
 const MOCK_DEVICES = [
   {
     deviceId: "DEVICE-001",
@@ -71,36 +69,31 @@ const CurrentLocation = () => {
   const [devices, setDevices] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  const callApi = async (endpoint) => {
-    console.log("Future API", `${API_ROOT}/${endpoint}`);
-
-    return new Promise((resolve) => {
-      setTimeout(() => resolve(MOCK_DEVICES), 500);
-    });
-  };
-
   useEffect(() => {
-    const fetchLocations = async () => {
-      setLoading(true);
-      const data = await callApi("current-location");
-      setDevices(data);
+    setLoading(true);
+    setTimeout(() => {
+      setDevices(MOCK_DEVICES);
       setLoading(false);
-    };
-
-    fetchLocations();
+    }, 500);
   }, []);
 
   return (
-    <div className="bg-gray-100 p-6 min-h-screen">
-      <h2 className="text-3xl font-bold mb-6">Device Location Dashboard</h2>
+    <div className="p-6 space-y-6">
 
-      <div className="bg-white p-4 rounded-xl shadow mb-6">
+      {/* HEADER */}
+      <h2 className="text-xl font-semibold text-slate-800">
+        Device Location
+      </h2>
+
+      {/* MAP */}
+      <div className="bg-white border border-slate-200 rounded-xl p-4">
         {loading ? (
-          <p>Loading map...</p>
+          <p className="text-sm text-slate-500">Loading map...</p>
         ) : (
           <MapContainer
             center={[26.1445, 91.7362]}
             zoom={13}
+            className="rounded-lg overflow-hidden"
             style={{ height: "420px", width: "100%" }}
           >
             <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
@@ -109,80 +102,74 @@ const CurrentLocation = () => {
               <Marker key={d.deviceId} position={[d.lat, d.lon]}>
                 <Popup>
                   <strong>{d.deviceId}</strong> <br />
-                  MSISDN: {d.msisdn} <br />
-                  Status: {d.status} <br />
-                  Last Update: {new Date(d.lastUpdate).toLocaleString()}
+                  {d.msisdn} <br />
+                  {d.status} <br />
+                  {new Date(d.lastUpdate).toLocaleString()}
                 </Popup>
               </Marker>
             ))}
           </MapContainer>
         )}
       </div>
-      <div className="grid md:grid-cols-3 gap-6 mb-6">
-        <div className="bg-white rounded-xl shadow p-6">
-          <p className="text-gray-500 text-sm">Total Location Check</p>
-          <h3 className="text-2xl font-bold mt-2">5000</h3>
-        </div>
 
-        <div className="bg-white rounded-xl shadow p-6">
-          <p className="text-gray-500 text-sm">Match Rate</p>
-          <h3 className="text-2xl font-bold text-green-500 mt-2">92%</h3>
-        </div>
-
-        <div className="bg-white rounded-xl shadow p-6">
-          <p className="text-gray-500 text-sm">Mismatch Rate</p>
-          <h3 className="text-2xl font-bold text-red-500 mt-2">8%</h3>
-        </div>
+      {/* STATS */}
+      <div className="grid md:grid-cols-3 gap-4">
+        <StatCard title="Total Location Check" value="5000" />
+        <StatCard title="Match Rate" value="92%" valueColor="text-emerald-600" />
+        <StatCard title="Mismatch Rate" value="8%" valueColor="text-rose-600" />
       </div>
 
-      <div className="bg-white rounded-xl shadow overflow-hidden mb-6">
+      {/* TABLE */}
+      <div className="bg-white border border-slate-200 rounded-xl overflow-hidden">
+
+        <div className="px-4 py-3 border-b border-slate-200 text-sm font-semibold text-slate-700">
+          Device List
+        </div>
+
         <table className="w-full text-sm">
-          <thead className="bg-slate-100 text-left">
+          <thead className="bg-slate-50 text-slate-500 text-xs">
             <tr>
-              <th className="p-4">Device</th>
-              <th>MSISDN</th>
-              <th>Status</th>
-              <th>Latitude</th>
-              <th>Longitude</th>
-              <th>Last Update</th>
+              <th className="p-3 text-left">Device</th>
+              <th className="text-left">MSISDN</th>
+              <th className="text-left">Status</th>
+              <th>Lat</th>
+              <th>Lon</th>
+              <th className="text-left">Last Update</th>
             </tr>
           </thead>
 
           <tbody>
             {devices.map((d) => (
-              <tr key={d.deviceId} className="border-t">
-                <td className="p-4 font-semibold">{d.deviceId}</td>
-                <td>{d.msisdn}</td>
-                <td>
-                  <span
-                    className={`px-2 py-1 rounded text-xs font-semibold
-      ${
-        d.status === "AVAILABLE"
-          ? "bg-green-100 text-green-700"
-          : d.status === "OFFLINE"
-            ? "bg-red-100 text-red-700"
-            : d.status === "RENT"
-              ? "bg-blue-100 text-blue-700"
-              : "bg-gray-100 text-gray-700"
-      }`}
-                  >
-                    {d.status}
-                  </span>
+              <tr
+                key={d.deviceId}
+                className="border-t border-slate-100 hover:bg-slate-50 transition"
+              >
+                <td className="p-3 font-medium text-slate-800">
+                  {d.deviceId}
                 </td>
 
-                <td>{d.lat}</td>
-                <td>{d.lon}</td>
-                <td>{new Date(d.lastUpdate).toLocaleString()}</td>
+                <td className="text-slate-600">{d.msisdn}</td>
+
+                <td>
+                  <StatusBadge status={d.status} />
+                </td>
+
+                <td className="text-center">{d.lat}</td>
+                <td className="text-center">{d.lon}</td>
+
+                <td className="text-slate-500 text-xs">
+                  {new Date(d.lastUpdate).toLocaleString()}
+                </td>
               </tr>
             ))}
           </tbody>
         </table>
       </div>
 
-      <div className="grid md:grid-cols-2 gap-6">
-        <div className="bg-white rounded-xl shadow p-6">
-          <h4 className="font-medium mb-4">GPS vs Network Mismatch</h4>
+      {/* CHARTS */}
+      <div className="grid md:grid-cols-2 gap-4">
 
+        <ChartCard title="GPS vs Network Mismatch">
           <ResponsiveContainer width="100%" height={250}>
             <AreaChart data={mismatchData}>
               <XAxis dataKey="day" />
@@ -192,15 +179,13 @@ const CurrentLocation = () => {
                 type="monotone"
                 dataKey="value"
                 stroke="#ef4444"
-                fill="#fecaca"
+                fill="#fee2e2"
               />
             </AreaChart>
           </ResponsiveContainer>
-        </div>
+        </ChartCard>
 
-        <div className="bg-white rounded-xl shadow p-6">
-          <h4 className="font-medium mb-4">Location Accuracy Levels</h4>
-
+        <ChartCard title="Location Accuracy Levels">
           <ResponsiveContainer width="100%" height={250}>
             <BarChart data={accuracyData}>
               <XAxis dataKey="name" />
@@ -209,16 +194,44 @@ const CurrentLocation = () => {
               <Bar dataKey="value" fill="#22c55e" />
             </BarChart>
           </ResponsiveContainer>
-        </div>
+        </ChartCard>
+
       </div>
     </div>
   );
 };
 
-const StatCard = ({ title, value }) => (
-  <div className="bg-white rounded-xl shadow p-6">
-    <p className="text-gray-500 text-sm">{title}</p>
-    <h3 className="text-2xl font-bold mt-2">{value}</h3>
+/* ----------------- REUSABLE COMPONENTS ----------------- */
+
+const StatCard = ({ title, value, valueColor }) => (
+  <div className="bg-white border border-slate-200 rounded-xl p-4">
+    <p className="text-xs text-slate-500">{title}</p>
+    <h3 className={`text-xl font-semibold mt-1 ${valueColor}`}>
+      {value}
+    </h3>
+  </div>
+);
+
+const StatusBadge = ({ status }) => {
+  const map = {
+    AVAILABLE: "bg-emerald-50 text-emerald-600",
+    OFFLINE: "bg-rose-50 text-rose-600",
+    RENT: "bg-blue-50 text-blue-600",
+  };
+
+  return (
+    <span className={`px-2 py-1 rounded-md text-xs font-medium ${map[status]}`}>
+      {status}
+    </span>
+  );
+};
+
+const ChartCard = ({ title, children }) => (
+  <div className="bg-white border border-slate-200 rounded-xl p-4">
+    <h4 className="text-sm font-medium text-slate-700 mb-4">
+      {title}
+    </h4>
+    {children}
   </div>
 );
 
