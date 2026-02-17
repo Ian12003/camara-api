@@ -7,7 +7,8 @@ const MOCK_DEVICES = [
     deviceType: "CAR",
     batteryLevel: 42,
     chargingState: "DISCHARGING",
-    lastBatteryUpdate: "2026-02-13T10:28:00Z",
+    priority: "HIGH",
+    lastBatteryUpdate: "2026-02-16T10:28:00Z",
   },
   {
     deviceId: "DEVICE-002",
@@ -15,7 +16,8 @@ const MOCK_DEVICES = [
     deviceType: "SCOOTER",
     batteryLevel: 100,
     chargingState: "FULL",
-    lastBatteryUpdate: "2026-02-13T10:20:00Z",
+    priority: "LOW",
+    lastBatteryUpdate: "2026-02-16T10:20:00Z",
   },
   {
     deviceId: "DEVICE-003",
@@ -23,9 +25,75 @@ const MOCK_DEVICES = [
     deviceType: "SENSOR",
     batteryLevel: 19,
     chargingState: "CHARGING",
-    lastBatteryUpdate: "2026-02-13T10:12:00Z",
-  }
+    priority: "MEDIUM",
+    lastBatteryUpdate: "2026-02-16T10:12:00Z",
+  },
+
+  {
+    deviceId: "DEVICE-004",
+    msisdn: "+491701122334",
+    deviceType: "CAR",
+    batteryLevel: 76,
+    chargingState: "DISCHARGING",
+    priority: "LOW",
+    lastBatteryUpdate: "2026-02-16T10:05:00Z",
+  },
+  {
+    deviceId: "DEVICE-005",
+    msisdn: "+491702223344",
+    deviceType: "SCOOTER",
+    batteryLevel: 58,
+    chargingState: "CHARGING",
+    priority: "MEDIUM",
+    lastBatteryUpdate: "2026-02-16T09:58:00Z",
+  },
+  {
+    deviceId: "DEVICE-006",
+    msisdn: "+491703334455",
+    deviceType: "CAR",
+    batteryLevel: 15,
+    chargingState: "DISCHARGING",
+    priority: "HIGH",
+    lastBatteryUpdate: "2026-02-16T09:50:00Z",
+  },
+  {
+    deviceId: "DEVICE-007",
+    msisdn: "+491704445566",
+    deviceType: "SENSOR",
+    batteryLevel: 90,
+    chargingState: "FULL",
+    priority: "LOW",
+    lastBatteryUpdate: "2026-02-16T09:42:00Z",
+  },
+  {
+    deviceId: "DEVICE-008",
+    msisdn: "+491705556677",
+    deviceType: "CAR",
+    batteryLevel: 33,
+    chargingState: "DISCHARGING",
+    priority: "MEDIUM",
+    lastBatteryUpdate: "2026-02-17T09:30:00Z",
+  },
+  {
+    deviceId: "DEVICE-009",
+    msisdn: "+491706667788",
+    deviceType: "SCOOTER",
+    batteryLevel: 67,
+    chargingState: "CHARGING",
+    priority: "LOW",
+    lastBatteryUpdate: "2026-02-16T09:22:00Z",
+  },
+  {
+    deviceId: "DEVICE-010",
+    msisdn: "+491707778899",
+    deviceType: "SENSOR",
+    batteryLevel: 8,
+    chargingState: "DISCHARGING",
+    priority: "HIGH",
+    lastBatteryUpdate: "2026-02-16T09:10:00Z",
+  },
 ];
+
 
 const BatteryInfo = () => {
   const [devices, setDevices] = useState([]);
@@ -49,19 +117,16 @@ const BatteryInfo = () => {
 
   const filteredDevices = devices.filter((device) => {
     const healthMatch =
-      healthFilter === "ALL" ||
-      getHealth(device.batteryLevel) === healthFilter;
+      healthFilter === "ALL" || getHealth(device.batteryLevel) === healthFilter;
 
     const chargeMatch =
-      chargeFilter === "ALL" ||
-      device.chargingState === chargeFilter;
+      chargeFilter === "ALL" || device.chargingState === chargeFilter;
 
     return healthMatch && chargeMatch;
   });
 
   return (
     <div className="p-6 space-y-6">
-
       {/* HEADER */}
       <h2 className="text-xl font-semibold text-slate-800">
         Device Battery Monitoring
@@ -69,7 +134,6 @@ const BatteryInfo = () => {
 
       {/* STATS */}
       <div className="grid md:grid-cols-3 gap-4">
-
         <StatCard
           title="Critical Devices"
           value={devices.filter((d) => d.batteryLevel < 20).length}
@@ -81,9 +145,7 @@ const BatteryInfo = () => {
           title="Low & Not Charging"
           value={
             devices.filter(
-              (d) =>
-                d.batteryLevel >30 &&
-                d.chargingState === "DISCHARGING"
+              (d) => d.batteryLevel < 30 && d.chargingState === "DISCHARGING",
             ).length
           }
           color="text-amber-600"
@@ -96,12 +158,10 @@ const BatteryInfo = () => {
           color="text-emerald-600"
           note="Battery above 60%"
         />
-
       </div>
 
       {/* FILTERS */}
       <div className="flex flex-wrap gap-3 justify-end">
-
         <Select
           value={healthFilter}
           onChange={setHealthFilter}
@@ -113,12 +173,10 @@ const BatteryInfo = () => {
           onChange={setChargeFilter}
           options={["ALL", "CHARGING", "DISCHARGING", "FULL"]}
         />
-
       </div>
 
       {/* TABLE */}
       <div className="bg-white border border-slate-200 rounded-xl overflow-hidden">
-
         <div className="px-4 py-3 border-b border-slate-200 text-sm font-medium text-slate-700">
           Device Battery Details
         </div>
@@ -126,57 +184,83 @@ const BatteryInfo = () => {
         {loading ? (
           <p className="p-6 text-sm text-slate-500">Loading battery data...</p>
         ) : (
-          <table className="w-full text-sm">
-
-            <thead className="bg-slate-50 text-slate-500 text-xs">
+          <table className="w-full text-sm table-auto">
+            <thead className="bg-slate-50 text-slate-500 text-xs uppercase tracking-wide">
               <tr>
-                <th className="p-3 text-left">Device</th>
-                <th>MSISDN</th>
-                <th>Type</th>
-                <th>Battery</th>
-                <th>Health</th>
-                <th>Charging</th>
-                <th>Last Update</th>
+                <th className="px-4 py-3 text-left">Device</th>
+                <th className="px-4 py-3 text-left">MSISDN</th>
+                <th className="px-4 py-3 text-left">Type</th>
+                <th className="px-4 py-3 text-left w-52">Battery</th>
+                <th className="px-4 py-3 text-left">Health</th>
+                <th className="px-4 py-3 text-left">Charging</th>
+                <th className="px-4 py-3 text-left">Time</th>
+                <th className="px-4 py-3 text-left">Priority</th>
+                <th className="px-4 py-3 text-left">Last Seen</th>
               </tr>
             </thead>
 
-            <tbody>
-              {filteredDevices.map((device) => (
-                <tr
-                  key={device.deviceId}
-                  className="border-t border-slate-100 hover:bg-slate-50 transition"
-                >
-                  <td className="p-3 font-medium text-slate-800">
-                    {device.deviceId}
-                  </td>
+            <tbody className="divide-y divide-slate-100">
+              {filteredDevices.map((device) => {
+                const hoursRemaining = Math.max(
+                  Math.round(device.batteryLevel / 15),
+                  0,
+                );
 
-                  <td className="text-slate-600">{device.msisdn}</td>
+                const risk =
+                  device.batteryLevel < 20 &&
+                  device.chargingState !== "CHARGING";
 
-                  <td>
-                    <span className="px-2 py-1 text-xs rounded-md bg-slate-100 text-slate-600">
-                      {device.deviceType}
-                    </span>
-                  </td>
+                return (
+                  <tr
+                    key={device.deviceId}
+                    className="hover:bg-slate-50 transition"
+                  >
+                    <td className="px-4 py-4 font-medium text-slate-800 whitespace-nowrap">
+                      {device.deviceId}
+                    </td>
 
-                  <td className="w-45">
-                    <BatteryBar level={device.batteryLevel} />
-                  </td>
+                    <td className="px-4 py-4 text-slate-600 whitespace-nowrap">
+                      {device.msisdn}
+                    </td>
 
-                  <td>
-                    <HealthBadge health={getHealth(device.batteryLevel)} />
-                  </td>
+                    <td className="px-4 py-4">
+                      <span className="px-2 py-1 text-xs rounded-md bg-slate-100 text-slate-600">
+                        {device.deviceType}
+                      </span>
+                    </td>
 
-                  <td>
-                    <ChargingBadge state={device.chargingState} />
-                  </td>
+                    <td className="px-4 py-4">
+                      <BatteryBar level={device.batteryLevel} />
+                    </td>
 
-                  <td className="text-xs text-slate-500">
-                    {new Date(device.lastBatteryUpdate).toLocaleString()}
-                  </td>
-                </tr>
-              ))}
+                    <td className="px-4 py-4">
+                      <HealthBadge health={getHealth(device.batteryLevel)} />
+                    </td>
+
+                    <td className="px-4 py-4">
+                      <ChargingBadge state={device.chargingState} />
+                    </td>
+
+                    <td className="px-4 py-4 text-slate-600 text-xs whitespace-nowrap">
+                      ~{hoursRemaining}h
+                      {risk && (
+                        <span className="ml-2 text-rose-600 font-medium">
+                          ⚠
+                        </span>
+                      )}
+                    </td>
+
+                    <td className="px-4 py-4">
+                      <PriorityBadge priority={device.priority} />
+                    </td>
+
+                    <td className="px-4 py-4 text-xs text-slate-500 whitespace-nowrap">
+                      {timeAgo(device.lastBatteryUpdate)}
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
-
           </table>
         )}
       </div>
@@ -189,11 +273,12 @@ const BatteryInfo = () => {
 const StatCard = ({ title, value, color, note }) => (
   <div
     className={`rounded-xl p-4 border
-      ${title === "Critical Devices"
-        ? "bg-red-50 border-red-500"
-        : title === "Low & Not Charging"
-        ? "bg-yellow-50 border-yellow-500"
-        : "bg-green-50 border-green-500"
+      ${
+        title === "Critical Devices"
+          ? "bg-red-50 border-red-500"
+          : title === "Low & Not Charging"
+            ? "bg-yellow-50 border-yellow-500"
+            : "bg-green-50 border-green-500"
       }`}
   >
     <p className="text-xs text-slate-500">{title}</p>
@@ -201,7 +286,6 @@ const StatCard = ({ title, value, color, note }) => (
     <p className="text-xs text-slate-400 mt-1">{note}</p>
   </div>
 );
-
 
 const Select = ({ value, onChange, options }) => (
   <select
@@ -217,11 +301,7 @@ const Select = ({ value, onChange, options }) => (
 
 const BatteryBar = ({ level }) => {
   const color =
-    level > 60
-      ? "bg-emerald-500"
-      : level > 30
-      ? "bg-amber-500"
-      : "bg-rose-500";
+    level > 60 ? "bg-emerald-500" : level > 30 ? "bg-amber-500" : "bg-rose-500";
 
   return (
     <div className="flex items-center gap-3">
@@ -255,5 +335,30 @@ const ChargingBadge = ({ state }) => (
     {state}
   </span>
 );
+
+const PriorityBadge = ({ priority }) => {
+  const map = {
+    HIGH: "bg-red-100 text-red-700",
+    MEDIUM: "bg-amber-100 text-amber-700",
+    LOW: "bg-slate-100 text-slate-600",
+  };
+
+  return (
+    <span
+      className={`px-2 py-1 rounded-md text-xs font-medium ${map[priority]}`}
+    >
+      {priority}
+    </span>
+  );
+};
+
+const timeAgo = (date) => {
+  const mins = Math.floor((Date.now() - new Date(date)) / 60000);
+
+  if (mins < 1) return "just now";
+  if (mins < 60) return `${mins}m ago`;
+
+  return `${Math.floor(mins / 60)}h ago`;
+};
 
 export default BatteryInfo;
