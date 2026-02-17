@@ -96,7 +96,7 @@ const Dashboard = () => {
 
               <td className="text-emerald-600 font-medium">82%</td>
               <td className="text-slate-700">Good</td>
-              <td className="text-slate-500">Berlin</td>
+              <td className="text-slate-500">Guwahati</td>
             </tr>
 
             <tr className="border-b border-slate-100 hover:bg-slate-50 transition">
@@ -110,7 +110,7 @@ const Dashboard = () => {
 
               <td className="text-amber-600 font-medium">45%</td>
               <td className="text-amber-600 font-medium">Weak</td>
-              <td className="text-slate-500">Munich</td>
+              <td className="text-slate-500">Guwahati</td>
             </tr>
 
           </tbody>

@@ -82,7 +82,7 @@ const BatteryInfo = () => {
           value={
             devices.filter(
               (d) =>
-                d.batteryLevel <= 30 &&
+                d.batteryLevel >30 &&
                 d.chargingState === "DISCHARGING"
             ).length
           }
@@ -158,7 +158,7 @@ const BatteryInfo = () => {
                     </span>
                   </td>
 
-                  <td className="w-[180px]">
+                  <td className="w-45">
                     <BatteryBar level={device.batteryLevel} />
                   </td>
 
@@ -187,12 +187,21 @@ const BatteryInfo = () => {
 /* ---------------- COMPONENTS ---------------- */
 
 const StatCard = ({ title, value, color, note }) => (
-  <div className="bg-white border border-slate-200 rounded-xl p-4">
+  <div
+    className={`rounded-xl p-4 border
+      ${title === "Critical Devices"
+        ? "bg-red-50 border-red-500"
+        : title === "Low & Not Charging"
+        ? "bg-yellow-50 border-yellow-500"
+        : "bg-green-50 border-green-500"
+      }`}
+  >
     <p className="text-xs text-slate-500">{title}</p>
     <h3 className={`text-xl font-semibold mt-1 ${color}`}>{value}</h3>
     <p className="text-xs text-slate-400 mt-1">{note}</p>
   </div>
 );
+
 
 const Select = ({ value, onChange, options }) => (
   <select

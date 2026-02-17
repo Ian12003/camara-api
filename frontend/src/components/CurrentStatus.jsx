@@ -8,22 +8,22 @@ const MOCK_STATUS = [
     status: "USE",
     battery: 42,
     location: "Guwahati",
-    lastUpdate: "2026-02-13T10:20:00Z"
+    lastUpdate: "2026-02-13T10:20:00Z",
   },
   {
     deviceId: "DEVICE-002",
     status: "AVAILABLE",
     battery: 100,
     location: "Guwahati",
-    lastUpdate: "2026-02-13T09:45:00Z"
+    lastUpdate: "2026-02-13T09:45:00Z",
   },
   {
     deviceId: "DEVICE-003",
     status: "OFFLINE",
     battery: 19,
     location: "Guwahati",
-    lastUpdate: "2026-02-13T09:10:00Z"
-  }
+    lastUpdate: "2026-02-13T09:10:00Z",
+  },
 ];
 
 const statuses = ["USE", "AVAILABLE", "CHARGING", "OFFLINE", "MAINTENANCE"];
@@ -37,12 +37,9 @@ const CurrentStatus = () => {
 
   return (
     <div className="bg-white border border-slate-200 rounded-xl p-5">
-
       {/* Header */}
       <div className="flex items-center justify-between mb-5">
-        <h2 className="text-xl font-semibold text-slate-900">
-          Current Status
-        </h2>
+        <h2 className="text-xl font-semibold text-slate-900">Current Status</h2>
       </div>
 
       {/* Columns */}
@@ -55,7 +52,6 @@ const CurrentStatus = () => {
           />
         ))}
       </div>
-
     </div>
   );
 };
@@ -66,20 +62,17 @@ const StatusColumn = ({ title, devices }) => {
     AVAILABLE: "border-l-blue-500",
     CHARGING: "border-l-amber-500",
     OFFLINE: "border-l-rose-500",
-    MAINTENANCE: "border-l-purple-500"
+    MAINTENANCE: "border-l-purple-500",
   };
 
   return (
     <div className="bg-white border border-slate-300 rounded-xl p-3">
-
       {/* Column header */}
       <div className="flex justify-between items-center mb-3">
         <h3 className="text-xs font-semibold tracking-wide text-slate-800">
           {title}
         </h3>
-        <span className="text-xs text-slate-800">
-          {devices.length}
-        </span>
+        <span className="text-xs text-slate-800">{devices.length}</span>
       </div>
 
       {/* Devices */}
@@ -87,33 +80,28 @@ const StatusColumn = ({ title, devices }) => {
         {devices.map((device) => (
           <div
             key={device.deviceId}
-            className={`group border border-slate-400 rounded-lg p-3 hover:border-slate-300 transition ${colorMap[title]} border-l-4`}
+            className={`group border border-slate-300 rounded-lg p-3 hover:border-slate-400 transition ${colorMap[title]} border-l-4 bg-white`}
           >
-
             {/* Top row */}
-            <div className="flex justify-between items-center">
-              <p className="text-sm font-medium text-slate-800">
+            <div className="flex justify-between items-start gap-2">
+              <p className="text-sm font-semibold text-slate-800 whitespace-nowrap">
                 {device.deviceId}
               </p>
 
-              <span className="text-xs bg-slate-100 px-2 py-0.5 rounded-md text-slate-700">
-                Battery :{device.battery}%
+              <span className="text-xs bg-slate-100 px-2 py-1 rounded-md text-slate-700 whitespace-nowrap">
+               Battery: {device.battery}%
               </span>
             </div>
 
             {/* Info */}
-            <p className="text-xs text-slate-700 mt-1">
-              Location :{device.location}
-            </p>
+            <p className="text-xs text-slate-600 mt-2">{device.location}</p>
 
-            <p className="text-[11px] text-slate-700 mt-2">
+            <p className="text-[11px] text-slate-500 mt-2">
               {new Date(device.lastUpdate).toLocaleString()}
             </p>
-
           </div>
         ))}
       </div>
-
     </div>
   );
 };
