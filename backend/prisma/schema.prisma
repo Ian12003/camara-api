@@ -29,7 +29,7 @@ model LocationVerificationRequest {
   areaType       String   @map("area_type")
   centerLatitude Float    @map("center_latitude")
   centerLongitude Float   @map("center_longitude")
-  radius         Int
+  radius         Int?
   maxAge         Int?     @map("max_age")
 
   request CamaraRequest @relation(fields: [correlator], references: [correlator])
