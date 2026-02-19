@@ -1,0 +1,56 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model CamaraRequest {
+  correlator   String   @id @db.Uuid
+  apiName      String   @map("api_name")
+  phoneNumber  String?  @map("phone_number")
+  status       String   @default("PENDING")
+  httpStatus   Int?     @map("http_status")
+  errorCode    String?  @map("error_code")
+  errorMessage String?  @map("error_message")
+  createdAt    DateTime @default(now()) @map("created_at")
+  completedAt  DateTime? @map("completed_at")
+
+  locationVerification LocationVerificationRequest?
+  locationVerificationResponse LocationVerificationResponse?
+
+  @@map("camara_requests")
+}
+
+model LocationVerificationRequest {
+  correlator     String   @id @db.Uuid
+  areaType       String   @map("area_type")
+  centerLatitude Float    @map("center_latitude")
+  centerLongitude Float   @map("center_longitude")
+  radius         Int
+  maxAge         Int?     @map("max_age")
+
+  request CamaraRequest @relation(fields: [correlator], references: [correlator])
+
+  @@map("location_verification_requests")
+}
+
+model LocationVerificationResponse {
+  correlator String @id @db.Uuid
+
+  verificationResult String   @map("verification_result") // TRUE | FALSE | PARTIAL
+  matchRate          Int?     @map("match_rate")
+  lastLocationTime   DateTime? @map("last_location_time")
+
+  httpStatus   Int?    @map("http_status")
+  errorCode    String? @map("error_code")
+  errorMessage String? @map("error_message")
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  request CamaraRequest @relation(fields: [correlator], references: [correlator])
+
+  @@map("location_verification_responses")
+}
