@@ -139,8 +139,9 @@
     "zeptomatch": "^2.1.0"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
+  "generate": ".\\node_modules\\.bin\\prisma.cmd generate",
+  "studio": ".\\node_modules\\.bin\\prisma.cmd studio"
+},
   "keywords": [],
   "author": "",
   "license": "ISC",
