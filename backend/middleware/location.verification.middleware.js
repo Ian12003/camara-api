@@ -1,134 +1,83 @@
+const axios = require("axios");
 const prisma = require("../prisma");
+const { mockLocationVerification } = require("../services/mock.camara.service");
 
-module.exports = async (req, res, next) => {
+const locationVerificationMiddleware = async (req, res) => {
 
-  const body = req.body;
-  const correlator = req.correlator;   
+  const correlator = req.correlator;
 
-  async function saveAndReturn(status, code, message) {
+  try {
 
-    if (correlator) {
-      try {
-        await prisma.camaraRequest.create({
-          data: {
-            correlator,
-            apiName: "location-verification",
-            phoneNumber: device?.phoneNumber || null,
-            status: "FAILED",
-            httpStatus: status,
-            errorCode: code,
-            errorMessage: message,
-            completedAt: new Date()
-          }
-        });
+    const phoneNumber = req.body.device?.phoneNumber;
 
-        await prisma.locationVerificationResponse.create({
-          data: {
-            correlator,
-            httpStatus: status,
-            errorCode: code,
-            errorMessage: message
-          }
-        });
-      } catch (e) {
-        console.error("DB logging failed:", e.message);
+    const areaType = req.body.area?.areaType;
+    const centerLatitude = req.body.area?.center?.latitude;
+    const centerLongitude = req.body.area?.center?.longitude;
+    const radius = req.body.area?.radius;
+
+    const maxAge = req.body.maxAge;
+
+    // store camara request
+    await prisma.camaraRequest.create({
+      data: {
+        correlator,
+        apiName: "location-verification",
+        phoneNumber
       }
-    }
-
-    return res.status(status).json({
-      status,
-      code,
-      message
     });
+
+    // store location request
+    await prisma.locationVerificationRequest.create({
+      data: {
+        correlator,
+        areaType,
+        centerLatitude,
+        centerLongitude,
+        radius,
+        maxAge
+      }
+    });
+
+    // forward SAME body to CAMARA / mock
+    const camaraResponse = await mockLocationVerification(req.body);
+
+    // store response
+    await prisma.locationVerificationResponse.create({
+      data: {
+        correlator,
+        verificationResult: camaraResponse.data.verificationResult,
+        matchRate: camaraResponse.data.matchRate,
+        lastLocationTime: camaraResponse.data.lastLocationTime,
+        httpStatus: camaraResponse.status
+      }
+    });
+
+    await prisma.camaraRequest.update({
+      where: { correlator },
+      data: {
+        status: "COMPLETED",
+        httpStatus: camaraResponse.status,
+        completedAt: new Date()
+      }
+    });
+
+    return res.status(camaraResponse.status).json(camaraResponse.data);
+
+  } catch (error) {
+
+    await prisma.camaraRequest.update({
+      where: { correlator },
+      data: {
+        status: "FAILED",
+        httpStatus: error.response?.status || 500,
+        completedAt: new Date()
+      }
+    });
+
+    return res
+      .status(error.response?.status || 500)
+      .json(error.response?.data || { message: "CAMARA error" });
   }
-
-  //BASIC BODY
-
-  if (!body || typeof body !== "object") {
-    return saveAndReturn(
-      400,
-      "INVALID_ARGUMENT",
-      "Client specified an invalid argument, request body or query param."
-    );
-  }
-
-  const { device, area, maxAge } = body;
-
-  /* ---------------- DEVICE ---------------- */
-
-  if (!device || typeof device !== "object") {
-    return saveAndReturn(400, "INVALID_ARGUMENT", "Missing device object.");
-  }
-
-  if (!device.phoneNumber || typeof device.phoneNumber !== "string") {
-    return saveAndReturn(
-      400,
-      "INVALID_ARGUMENT",
-      "Missing or invalid device.phoneNumber."
-    );
-  }
-
-  /* ---------------- AREA ---------------- */
-
-  if (!area || typeof area !== "object") {
-    return saveAndReturn(400, "INVALID_ARGUMENT", "Missing area object.");
-  }
-
-  const { areaType, center, radius } = area;
-
-  if (areaType !== "CIRCLE") {
-    return saveAndReturn(
-      400,
-      "INVALID_ARGUMENT",
-      "Only areaType=CIRCLE is supported."
-    );
-  }
-
-  if (!center || typeof center !== "object") {
-    return saveAndReturn(400, "INVALID_ARGUMENT", "Missing area.center.");
-  }
-
-  if (
-    typeof center.latitude !== "number" ||
-    typeof center.longitude !== "number"
-  ) {
-    return saveAndReturn(
-      400,
-      "INVALID_ARGUMENT",
-      "center.latitude and center.longitude must be numbers."
-    );
-  }
-
-  if (typeof radius !== "number" || radius <= 0) {
-    return saveAndReturn(
-      400,
-      "INVALID_ARGUMENT",
-      "radius must be a positive number."
-    );
-  }
-
-  /* ---------------- MAX AGE ---------------- */
-
-  if (maxAge !== undefined) {
-    if (typeof maxAge !== "number" || maxAge < 0) {
-      return saveAndReturn(
-        400,
-        "INVALID_ARGUMENT",
-        "maxAge must be a positive number."
-      );
-    }
-  }
-
-  /* ---------------- NORMALIZE ---------------- */
-
-  req.normalizedLocationRequest = {
-    phoneNumber: device.phoneNumber,
-    areaType,
-    centerLatitude: center.latitude,
-    centerLongitude: center.longitude,
-    radius,
-    maxAge
-  };
-
-  next();
 };
+
+module.exports = { locationVerificationMiddleware };

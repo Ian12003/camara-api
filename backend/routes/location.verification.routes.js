@@ -1,17 +1,13 @@
 const express = require("express");
+const {
+  locationVerificationMiddleware
+} = require("../middleware/location.verification.middleware");
+
 const router = express.Router();
 
-const validateLocation =
-  require("../middleware/location.verification.middleware");
-
-const {
-  handleLocationVerification
-} = require("../controllers/location.verification.controller");
-
 router.post(
-  "/location-verification",
-  validateLocation,             
-  handleLocationVerification
+  "/location-verification/v3/verify",
+  locationVerificationMiddleware
 );
 
 module.exports = router;
