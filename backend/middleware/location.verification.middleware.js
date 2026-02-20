@@ -1,101 +1,134 @@
-module.exports = (req, res, next) => {
+const prisma = require("../prisma");
+
+module.exports = async (req, res, next) => {
 
   const body = req.body;
+  const correlator = req.correlator;   
+
+  async function saveAndReturn(status, code, message) {
+
+    if (correlator) {
+      try {
+        await prisma.camaraRequest.create({
+          data: {
+            correlator,
+            apiName: "location-verification",
+            phoneNumber: device?.phoneNumber || null,
+            status: "FAILED",
+            httpStatus: status,
+            errorCode: code,
+            errorMessage: message,
+            completedAt: new Date()
+          }
+        });
+
+        await prisma.locationVerificationResponse.create({
+          data: {
+            correlator,
+            httpStatus: status,
+            errorCode: code,
+            errorMessage: message
+          }
+        });
+      } catch (e) {
+        console.error("DB logging failed:", e.message);
+      }
+    }
+
+    return res.status(status).json({
+      status,
+      code,
+      message
+    });
+  }
 
   //BASIC BODY
+
   if (!body || typeof body !== "object") {
-    return res.status(400).json({
-      status: 400,
-      code: "INVALID_ARGUMENT",
-      message: "Client specified an invalid argument, request body or query param."
-    });
+    return saveAndReturn(
+      400,
+      "INVALID_ARGUMENT",
+      "Client specified an invalid argument, request body or query param."
+    );
   }
 
   const { device, area, maxAge } = body;
 
-  //DEVICE 
+  /* ---------------- DEVICE ---------------- */
+
   if (!device || typeof device !== "object") {
-    return res.status(400).json({
-      status: 400,
-      code: "INVALID_ARGUMENT",
-      message: "Missing device object."
-    });
+    return saveAndReturn(400, "INVALID_ARGUMENT", "Missing device object.");
   }
 
   if (!device.phoneNumber || typeof device.phoneNumber !== "string") {
-    return res.status(400).json({
-      status: 400,
-      code: "INVALID_ARGUMENT",
-      message: "Missing or invalid device.phoneNumber."
-    });
+    return saveAndReturn(
+      400,
+      "INVALID_ARGUMENT",
+      "Missing or invalid device.phoneNumber."
+    );
   }
 
-  //AREA
+  /* ---------------- AREA ---------------- */
+
   if (!area || typeof area !== "object") {
-    return res.status(400).json({
-      status: 400,
-      code: "INVALID_ARGUMENT",
-      message: "Missing area object."
-    });
+    return saveAndReturn(400, "INVALID_ARGUMENT", "Missing area object.");
   }
 
   const { areaType, center, radius } = area;
 
   if (areaType !== "CIRCLE") {
-    return res.status(400).json({
-      status: 400,
-      code: "INVALID_ARGUMENT",
-      message: "Only areaType=CIRCLE is supported."
-    });
+    return saveAndReturn(
+      400,
+      "INVALID_ARGUMENT",
+      "Only areaType=CIRCLE is supported."
+    );
   }
 
   if (!center || typeof center !== "object") {
-    return res.status(400).json({
-      status: 400,
-      code: "INVALID_ARGUMENT",
-      message: "Missing area.center."
-    });
+    return saveAndReturn(400, "INVALID_ARGUMENT", "Missing area.center.");
   }
 
   if (
     typeof center.latitude !== "number" ||
     typeof center.longitude !== "number"
   ) {
-    return res.status(400).json({
-      status: 400,
-      code: "INVALID_ARGUMENT",
-      message: "center.latitude and center.longitude must be numbers."
-    });
+    return saveAndReturn(
+      400,
+      "INVALID_ARGUMENT",
+      "center.latitude and center.longitude must be numbers."
+    );
   }
 
   if (typeof radius !== "number" || radius <= 0) {
-    return res.status(400).json({
-      status: 400,
-      code: "INVALID_ARGUMENT",
-      message: "radius must be a positive number."
-    });
+    return saveAndReturn(
+      400,
+      "INVALID_ARGUMENT",
+      "radius must be a positive number."
+    );
   }
 
-  //MAX AGE
+  /* ---------------- MAX AGE ---------------- */
+
   if (maxAge !== undefined) {
     if (typeof maxAge !== "number" || maxAge < 0) {
-      return res.status(400).json({
-        status: 400,
-        code: "INVALID_ARGUMENT",
-        message: "maxAge must be a positive number."
-      });
+      return saveAndReturn(
+        400,
+        "INVALID_ARGUMENT",
+        "maxAge must be a positive number."
+      );
     }
   }
 
- req.normalizedLocationRequest = {
-  phoneNumber: device.phoneNumber,
-  areaType,
-  centerLatitude: center.latitude,
-  centerLongitude: center.longitude,
-  radius,
-  maxAge
-};
+  /* ---------------- NORMALIZE ---------------- */
 
+  req.normalizedLocationRequest = {
+    phoneNumber: device.phoneNumber,
+    areaType,
+    centerLatitude: center.latitude,
+    centerLongitude: center.longitude,
+    radius,
+    maxAge
+  };
 
   next();
 };

@@ -40,7 +40,7 @@ model LocationVerificationRequest {
 model LocationVerificationResponse {
   correlator String @id @db.Uuid
 
-  verificationResult String   @map("verification_result") // TRUE | FALSE | PARTIAL
+  verificationResult String?   @map("verification_result") // TRUE | FALSE | PARTIAL
   matchRate          Int?     @map("match_rate")
   lastLocationTime   DateTime? @map("last_location_time")
 
@@ -53,4 +53,35 @@ model LocationVerificationResponse {
   request CamaraRequest @relation(fields: [correlator], references: [correlator])
 
   @@map("location_verification_responses")
+}
+
+
+model TelcoDevice {
+  id                 String   @id @default(uuid()) @db.Uuid
+  msisdn             String   @unique
+  status             String   // ACTIVE | SUSPENDED | TERMINATED
+  supportsLocation   Boolean  @default(true)
+  supportsSimSwap    Boolean  @default(false)
+  supportsNumberVerify Boolean @default(false)
+
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  location TelcoDeviceLocation?
+
+  @@map("telco_devices")
+}
+
+model TelcoDeviceLocation {
+  id          String   @id @default(uuid()) @db.Uuid
+  deviceId    String   @unique @db.Uuid
+
+  latitude    Float
+  longitude   Float
+  accuracy    Int?      // meters
+  lastSeenAt  DateTime
+
+  device TelcoDevice @relation(fields: [deviceId], references: [id])
+
+  @@map("telco_device_locations")
 }
