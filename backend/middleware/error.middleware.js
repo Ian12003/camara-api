@@ -1,6 +1,12 @@
 module.exports = (err, req, res, next) => {
+
   console.error(err);
-  res.status(500).json({
-    error: err.message || "Something went wrong",
+
+  const status = err.status || 500;
+
+  res.status(status).json({
+    status,
+    code: err.code || "INTERNAL_ERROR",
+    message: err.message || "Unexpected server error"
   });
 };

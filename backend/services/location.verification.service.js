@@ -1,11 +1,12 @@
-const { PrismaClient } = require("@prisma/client");
-
-const prisma = new PrismaClient();
-
+const prisma = require("../prisma");
 
 exports.processLocationVerification = async (payload, correlator) => {
   if (!correlator) {
-  throw new Error("Correlator missing in service layer");
+  throw {
+      status: 500,
+      code: "INTERNAL_ERROR",
+      message: "Correlator missing"
+    };
 }
 
   const {
