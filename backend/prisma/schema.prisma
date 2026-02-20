@@ -54,34 +54,3 @@ model LocationVerificationResponse {
 
   @@map("location_verification_responses")
 }
-
-
-model TelcoDevice {
-  id                 String   @id @default(uuid()) @db.Uuid
-  msisdn             String   @unique
-  status             String   // ACTIVE | SUSPENDED | TERMINATED
-  supportsLocation   Boolean  @default(true)
-  supportsSimSwap    Boolean  @default(false)
-  supportsNumberVerify Boolean @default(false)
-
-  createdAt          DateTime @default(now())
-  updatedAt          DateTime @updatedAt
-
-  location TelcoDeviceLocation?
-
-  @@map("telco_devices")
-}
-
-model TelcoDeviceLocation {
-  id          String   @id @default(uuid()) @db.Uuid
-  deviceId    String   @unique @db.Uuid
-
-  latitude    Float
-  longitude   Float
-  accuracy    Int?      // meters
-  lastSeenAt  DateTime
-
-  device TelcoDevice @relation(fields: [deviceId], references: [id])
-
-  @@map("telco_device_locations")
-}
